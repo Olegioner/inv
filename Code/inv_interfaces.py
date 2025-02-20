@@ -10,6 +10,16 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from openpyxl import load_workbook
+inv = load_workbook('../base_file/main.xlsx')
+
+name_sheet = inv['Наименования']
+items_for_combo_name = []
+
+for name, count in name_sheet.values:
+    if count != 0 and type(count) == int:
+        items_for_combo_name.append(name)
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -54,6 +64,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.comboBox_subuint, 1, 2, 1, 1)
         self.comboBox_name = QtWidgets.QComboBox(self.gridLayoutWidget)
         self.comboBox_name.setObjectName("comboBox_name")
+        self.comboBox_name.addItems(items_for_combo_name)
         self.gridLayout.addWidget(self.comboBox_name, 1, 0, 1, 1)
         self.label_unit = QtWidgets.QLabel(self.gridLayoutWidget)
         self.label_unit.setObjectName("label_unit")
@@ -83,4 +94,6 @@ class Ui_MainWindow(object):
         self.label_subunit.setText(_translate("MainWindow", "Подразделение"))
         self.label_unit.setText(_translate("MainWindow", "Отделение"))
         self.label_name.setText(_translate("MainWindow", "Наименование"))
+
+
 
