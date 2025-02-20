@@ -13,12 +13,24 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from openpyxl import load_workbook
 inv = load_workbook('../base_file/main.xlsx')
 
-name_sheet = inv['Наименования']
-items_for_combo_name = []
+# name_sheet = inv['Наименования']
+# items_for_combo_name = []
+#
+# for name, count in name_sheet.values:
+#     if count != 0 and type(count) == int:
+#         items_for_combo_name.append(name)
 
-for name, count in name_sheet.values:
-    if count != 0 and type(count) == int:
-        items_for_combo_name.append(name)
+name_units = {'Амбулатория': ['АО1', 'АО2', 'АО3', 'АО4', 'КДЛ', 'ПЦР', 'Платное отделение'],
+              'Стационар' : ['ДО', 'ВО', 'ДДО'],
+              'Дневной стационар': ['ДС1', 'ДС2', 'ДС3', 'ДС4']}
+
+
+def unit_selected(self, value):
+    items_for_combo = []
+    for name, count in inv[value].values:
+        if count != 0 and type(count) == int:
+            items_for_combo.append(name)
+    self.comboBox_name.addItems(items_for_combo)
 
 
 class Ui_MainWindow(object):
@@ -52,6 +64,8 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.pushButton_into_values, 2, 4, 1, 1)
         self.comboBox_unit = QtWidgets.QComboBox(self.gridLayoutWidget)
         self.comboBox_unit.setObjectName("comboBox_unit")
+        self.comboBox_unit.addItems(name_units.keys())
+        self.comboBox_unit.currentTextChanged.connect(unit_selected)
         self.gridLayout.addWidget(self.comboBox_unit, 1, 1, 1, 1)
         self.label_subunit = QtWidgets.QLabel(self.gridLayoutWidget)
         self.label_subunit.setObjectName("label_subunit")
@@ -64,7 +78,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.comboBox_subuint, 1, 2, 1, 1)
         self.comboBox_name = QtWidgets.QComboBox(self.gridLayoutWidget)
         self.comboBox_name.setObjectName("comboBox_name")
-        self.comboBox_name.addItems(items_for_combo_name)
+
         self.gridLayout.addWidget(self.comboBox_name, 1, 0, 1, 1)
         self.label_unit = QtWidgets.QLabel(self.gridLayoutWidget)
         self.label_unit.setObjectName("label_unit")
@@ -94,6 +108,8 @@ class Ui_MainWindow(object):
         self.label_subunit.setText(_translate("MainWindow", "Подразделение"))
         self.label_unit.setText(_translate("MainWindow", "Отделение"))
         self.label_name.setText(_translate("MainWindow", "Наименование"))
+
+
 
 
 
