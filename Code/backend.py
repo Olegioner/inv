@@ -1,10 +1,31 @@
 from openpyxl import load_workbook
-from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5 import QtWidgets
 
-inv = load_workbook('../base_file/main.xlsx')
+import sys
+import inv_interfaces
 
-name_sheet = inv['Наименования']
-moving_sheet = inv['Движение']
+class ExampleApp(QtWidgets.QMainWindow, inv_interfaces.Ui_MainWindow):
+    def __init__(self):
+        # Это здесь нужно для доступа к переменным, методам
+        # и т.д. в файле design.py
+        super().__init__()
+        self.setupUi(self)  # Это нужно для инициализации нашего дизайна
+
+def main():
+    app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication
+    window = ExampleApp()  # Создаём объект класса ExampleApp
+    window.show()  # Показываем окно
+    app.exec_()  # и запускаем приложение
+
+if __name__ == '__main__':  # Если мы запускаем файл напрямую, а не импортируем
+    main()  # то запускаем функцию main()
+
+
+
+
+# inv = load_workbook('../base_file/main.xlsx')
+#
+# name_sheet = inv['Наименования']
+# moving_sheet = inv['Движение']
 
 
