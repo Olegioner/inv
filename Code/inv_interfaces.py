@@ -83,3 +83,4 @@ class Ui_MainWindow(object):
         self.label_subunit.setText(_translate("MainWindow", "Подразделение"))
         self.label_unit.setText(_translate("MainWindow", "Отделение"))
         self.label_name.setText(_translate("MainWindow", "Наименование"))
+
