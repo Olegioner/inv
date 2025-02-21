@@ -20,6 +20,7 @@ name_units = {'Выберите значение': ['Выберите значе
                             'Платное отделение','Стационар','ДС1', 'ДС2', 'ДС3', 'ДС4']}
 
 
+
 class ExampleApp(QtWidgets.QMainWindow, inv_interfaces.Ui_MainWindow):
     def __init__(self):
         super().__init__()
@@ -30,16 +31,25 @@ class ExampleApp(QtWidgets.QMainWindow, inv_interfaces.Ui_MainWindow):
 
         self.pushButton_into_values.clicked.connect(self.into_value)
 
+
     def into_value(self):
-        list_value = []
-        list_value.append(self.comboBox_unit.currentText())
-        list_value.append(self.comboBox_subuint.currentText())
-        list_value.append(self.lineEdit_kab.text())
-        list_value.append(self.comboBox_name.currentText())
-        list_value.append(self.lineEdit_count.text())
+
+        unit = self.comboBox_unit.currentText()
+        sub = self.comboBox_subuint.currentText()
+        kab = self.lineEdit_kab.text()
+        name_item = self.comboBox_name.currentText()
+        count_item = self.lineEdit_count.text()
+        list_value = [unit, sub, kab, name_item, count_item]
         list_value.append(datetime.today())
         moving_sheet.append(list_value)
+        for i in range(1, len(list(inv[unit].values))):
+            if inv[unit][f'A{i}'].value == name_item:
+                #inv[unit][f'B{i}'].value -= count_item
+                print(inv[unit][f'B{i}'].value)
+
         inv.save('../base_file/main.xlsx')
+
+
 
 
 
@@ -65,7 +75,6 @@ def main():
 
 if __name__ == '__main__':  # Если мы запускаем файл напрямую, а не импортируем
     main()  # то запускаем функцию main()
-
 
 
 
