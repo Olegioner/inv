@@ -9,21 +9,47 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from openpyxl import load_workbook
+
+inv = load_workbook('../base_file/main.xlsx')
+
+name_sheet = inv['Наименования']
+items_for_combo_name = []
+
+
+name_units = {'Амбулатория': ['АО1', 'АО2', 'АО3', 'АО4', 'КДЛ', 'Платное отделение'],
+              'Стационар' : ['Стационар'],
+              'Дневной Стационар': ['ДС1', 'ДС2', 'ДС3', 'ДС4'],
+              'Вне плана': ['АО1', 'АО2', 'АО3', 'АО4', 'КДЛ',
+                            'Платное отделение','Стационар','ДС1', 'ДС2', 'ДС3', 'ДС4']}
+
 
 
 class Ui_MainWindow(object):
+
+    def unit_selected(self, value):
+        items_for_combo = []
+        for name, count in inv[value].values:
+            if count != 0 and type(count) == int:
+                items_for_combo.append(name)
+        self.comboBox_name.addItems(items_for_combo)
+        self.comboBox_subuint.addItems(name_units[value])
+
+
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(890, 177)
+        MainWindow.resize(887, 227)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.frame = QtWidgets.QFrame(self.centralwidget)
-        self.frame.setGeometry(QtCore.QRect(10, 10, 871, 131))
-        self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame.setObjectName("frame")
-        self.verticalLayoutWidget = QtWidgets.QWidget(self.frame)
-        self.verticalLayoutWidget.setGeometry(QtCore.QRect(0, 0, 160, 80))
+        self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
+        self.tabWidget.setEnabled(True)
+        self.tabWidget.setGeometry(QtCore.QRect(10, 10, 871, 201))
+        self.tabWidget.setObjectName("tabWidget")
+        self.tab = QtWidgets.QWidget()
+        self.tab.setObjectName("tab")
+# Отделения
+        self.verticalLayoutWidget = QtWidgets.QWidget(self.tab)
+        self.verticalLayoutWidget.setGeometry(QtCore.QRect(10, 10, 160, 80))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -35,8 +61,11 @@ class Ui_MainWindow(object):
         self.comboBox_unit = QtWidgets.QComboBox(self.verticalLayoutWidget)
         self.comboBox_unit.setObjectName("comboBox_unit")
         self.verticalLayout.addWidget(self.comboBox_unit)
-        self.verticalLayoutWidget_2 = QtWidgets.QWidget(self.frame)
-        self.verticalLayoutWidget_2.setGeometry(QtCore.QRect(170, 0, 160, 80))
+        self.comboBox_unit.addItems(list(name_units.keys()))
+        self.comboBox_unit.currentTextChanged.connect(self.unit_selected)
+# Подразделения
+        self.verticalLayoutWidget_2 = QtWidgets.QWidget(self.tab)
+        self.verticalLayoutWidget_2.setGeometry(QtCore.QRect(180, 10, 160, 80))
         self.verticalLayoutWidget_2.setObjectName("verticalLayoutWidget_2")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_2)
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -48,11 +77,9 @@ class Ui_MainWindow(object):
         self.comboBox_subuint = QtWidgets.QComboBox(self.verticalLayoutWidget_2)
         self.comboBox_subuint.setObjectName("comboBox_subuint")
         self.verticalLayout_2.addWidget(self.comboBox_subuint)
-        self.pushButton_clear = QtWidgets.QPushButton(self.frame)
-        self.pushButton_clear.setGeometry(QtCore.QRect(0, 90, 158, 23))
-        self.pushButton_clear.setObjectName("pushButton_clear")
-        self.verticalLayoutWidget_3 = QtWidgets.QWidget(self.frame)
-        self.verticalLayoutWidget_3.setGeometry(QtCore.QRect(350, 0, 91, 80))
+# Кабинет
+        self.verticalLayoutWidget_3 = QtWidgets.QWidget(self.tab)
+        self.verticalLayoutWidget_3.setGeometry(QtCore.QRect(350, 10, 91, 80))
         self.verticalLayoutWidget_3.setObjectName("verticalLayoutWidget_3")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_3)
         self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
@@ -64,8 +91,9 @@ class Ui_MainWindow(object):
         self.lineEdit_kab = QtWidgets.QLineEdit(self.verticalLayoutWidget_3)
         self.lineEdit_kab.setObjectName("lineEdit_kab")
         self.verticalLayout_3.addWidget(self.lineEdit_kab)
-        self.verticalLayoutWidget_4 = QtWidgets.QWidget(self.frame)
-        self.verticalLayoutWidget_4.setGeometry(QtCore.QRect(460, 0, 321, 80))
+# Наименование
+        self.verticalLayoutWidget_4 = QtWidgets.QWidget(self.tab)
+        self.verticalLayoutWidget_4.setGeometry(QtCore.QRect(450, 10, 321, 80))
         self.verticalLayoutWidget_4.setObjectName("verticalLayoutWidget_4")
         self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_4)
         self.verticalLayout_4.setContentsMargins(0, 0, 0, 0)
@@ -77,8 +105,9 @@ class Ui_MainWindow(object):
         self.comboBox_name = QtWidgets.QComboBox(self.verticalLayoutWidget_4)
         self.comboBox_name.setObjectName("comboBox_name")
         self.verticalLayout_4.addWidget(self.comboBox_name)
-        self.verticalLayoutWidget_5 = QtWidgets.QWidget(self.frame)
-        self.verticalLayoutWidget_5.setGeometry(QtCore.QRect(800, 0, 71, 80))
+# Количество
+        self.verticalLayoutWidget_5 = QtWidgets.QWidget(self.tab)
+        self.verticalLayoutWidget_5.setGeometry(QtCore.QRect(780, 10, 71, 80))
         self.verticalLayoutWidget_5.setObjectName("verticalLayoutWidget_5")
         self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_5)
         self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
@@ -90,19 +119,81 @@ class Ui_MainWindow(object):
         self.lineEdit_count = QtWidgets.QLineEdit(self.verticalLayoutWidget_5)
         self.lineEdit_count.setObjectName("lineEdit_count")
         self.verticalLayout_5.addWidget(self.lineEdit_count)
-        self.pushButton_into_values = QtWidgets.QPushButton(self.frame)
-        self.pushButton_into_values.setGeometry(QtCore.QRect(644, 90, 141, 23))
+# Очистка формы
+        self.pushButton_clear = QtWidgets.QPushButton(self.tab)
+        self.pushButton_clear.setGeometry(QtCore.QRect(10, 100, 158, 23))
+        self.pushButton_clear.setObjectName("pushButton_clear")
+# Кнопка ввода данных
+        self.pushButton_into_values = QtWidgets.QPushButton(self.tab)
+        self.pushButton_into_values.setGeometry(QtCore.QRect(710, 100, 141, 23))
         self.pushButton_into_values.setObjectName("pushButton_into_values")
+        self.tabWidget.addTab(self.tab, "")
+        self.tab_2 = QtWidgets.QWidget()
+        self.tab_2.setObjectName("tab_2")
+        self.verticalLayoutWidget_6 = QtWidgets.QWidget(self.tab_2)
+        self.verticalLayoutWidget_6.setGeometry(QtCore.QRect(10, 10, 160, 41))
+        self.verticalLayoutWidget_6.setObjectName("verticalLayoutWidget_6")
+        self.verticalLayout_6 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_6)
+        self.verticalLayout_6.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_6.setObjectName("verticalLayout_6")
+        self.label_start = QtWidgets.QLabel(self.verticalLayoutWidget_6)
+        self.label_start.setObjectName("label_start")
+        self.verticalLayout_6.addWidget(self.label_start)
+        self.dateEdit = QtWidgets.QDateEdit(self.verticalLayoutWidget_6)
+        self.dateEdit.setObjectName("dateEdit")
+        self.verticalLayout_6.addWidget(self.dateEdit)
+        self.verticalLayoutWidget_7 = QtWidgets.QWidget(self.tab_2)
+        self.verticalLayoutWidget_7.setGeometry(QtCore.QRect(180, 10, 160, 41))
+        self.verticalLayoutWidget_7.setObjectName("verticalLayoutWidget_7")
+        self.verticalLayout_7 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_7)
+        self.verticalLayout_7.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_7.setObjectName("verticalLayout_7")
+        self.label_finish = QtWidgets.QLabel(self.verticalLayoutWidget_7)
+        self.label_finish.setObjectName("label_finish")
+        self.verticalLayout_7.addWidget(self.label_finish)
+        self.dateEdit_2 = QtWidgets.QDateEdit(self.verticalLayoutWidget_7)
+        self.dateEdit_2.setObjectName("dateEdit_2")
+        self.verticalLayout_7.addWidget(self.dateEdit_2)
+        self.verticalLayoutWidget_8 = QtWidgets.QWidget(self.tab_2)
+        self.verticalLayoutWidget_8.setGeometry(QtCore.QRect(350, 10, 160, 41))
+        self.verticalLayoutWidget_8.setObjectName("verticalLayoutWidget_8")
+        self.verticalLayout_8 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_8)
+        self.verticalLayout_8.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_8.setObjectName("verticalLayout_8")
+        self.label_view_units = QtWidgets.QLabel(self.verticalLayoutWidget_8)
+        self.label_view_units.setObjectName("label_view_units")
+        self.verticalLayout_8.addWidget(self.label_view_units)
+        self.comboBox = QtWidgets.QComboBox(self.verticalLayoutWidget_8)
+        self.comboBox.setObjectName("comboBox")
+        self.verticalLayout_8.addWidget(self.comboBox)
+        self.verticalLayoutWidget_9 = QtWidgets.QWidget(self.tab_2)
+        self.verticalLayoutWidget_9.setGeometry(QtCore.QRect(520, 10, 160, 41))
+        self.verticalLayoutWidget_9.setObjectName("verticalLayoutWidget_9")
+        self.verticalLayout_9 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_9)
+        self.verticalLayout_9.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_9.setObjectName("verticalLayout_9")
+        self.label_view_subunits = QtWidgets.QLabel(self.verticalLayoutWidget_9)
+        self.label_view_subunits.setObjectName("label_view_subunits")
+        self.verticalLayout_9.addWidget(self.label_view_subunits)
+        self.comboBox_2 = QtWidgets.QComboBox(self.verticalLayoutWidget_9)
+        self.comboBox_2.setObjectName("comboBox_2")
+        self.verticalLayout_9.addWidget(self.comboBox_2)
+        self.scrollArea_view_info = QtWidgets.QScrollArea(self.tab_2)
+        self.scrollArea_view_info.setGeometry(QtCore.QRect(10, 60, 841, 111))
+        self.scrollArea_view_info.setWidgetResizable(True)
+        self.scrollArea_view_info.setObjectName("scrollArea_view_info")
+        self.scrollAreaWidgetContents = QtWidgets.QWidget()
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 839, 109))
+        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+        self.scrollArea_view_info.setWidget(self.scrollAreaWidgetContents)
+        self.pushButton_view_info = QtWidgets.QPushButton(self.tab_2)
+        self.pushButton_view_info.setGeometry(QtCore.QRect(700, 20, 75, 23))
+        self.pushButton_view_info.setObjectName("pushButton_view_info")
+        self.tabWidget.addTab(self.tab_2, "")
         MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 890, 21))
-        self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -110,18 +201,15 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.label_unit.setText(_translate("MainWindow", "Отделение"))
         self.label_subunit.setText(_translate("MainWindow", "Подразделение"))
-        self.pushButton_clear.setText(_translate("MainWindow", "Очистить"))
         self.label_kab.setText(_translate("MainWindow", "Кабинет"))
         self.label_name.setText(_translate("MainWindow", "Наименование"))
         self.label_count.setText(_translate("MainWindow", "Количество"))
+        self.pushButton_clear.setText(_translate("MainWindow", "Очистить"))
         self.pushButton_into_values.setText(_translate("MainWindow", "Внести данные"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Внесение данных"))
+        self.label_start.setText(_translate("MainWindow", "Дата с:"))
+        self.label_finish.setText(_translate("MainWindow", "Дата по:"))
+        self.label_view_units.setText(_translate("MainWindow", "Отделение"))
+        self.label_view_subunits.setText(_translate("MainWindow", "Подразделение"))
+        self.pushButton_view_info.setText(_translate("MainWindow", "Показать"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Данные за период"))

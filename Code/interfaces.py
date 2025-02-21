@@ -24,6 +24,6 @@ def unit_selected(self, value):
 
 
 self.comboBox_unit.addItems(list(name_units.keys()))
-        self.comboBox_unit.currentTextChanged.connect(self.unit_selected)
+self.comboBox_unit.currentTextChanged.connect(self.unit_selected)
 
 '''
