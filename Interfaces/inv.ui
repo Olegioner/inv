@@ -27,7 +27,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -277,29 +277,6 @@
        </item>
       </layout>
      </widget>
-     <widget class="QScrollArea" name="scrollArea_view_info">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>60</y>
-        <width>841</width>
-        <height>111</height>
-       </rect>
-      </property>
-      <property name="widgetResizable">
-       <bool>true</bool>
-      </property>
-      <widget class="QWidget" name="scrollAreaWidgetContents">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>839</width>
-         <height>109</height>
-        </rect>
-       </property>
-      </widget>
-     </widget>
      <widget class="QPushButton" name="pushButton_view_info">
       <property name="geometry">
        <rect>
@@ -311,6 +288,16 @@
       </property>
       <property name="text">
        <string>Показать</string>
+      </property>
+     </widget>
+     <widget class="QTextEdit" name="textEdit_view_info">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>60</y>
+        <width>851</width>
+        <height>111</height>
+       </rect>
       </property>
      </widget>
     </widget>
