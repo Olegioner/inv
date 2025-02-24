@@ -1,8 +1,9 @@
-from openpyxl import load_workbook
-from PyQt5 import QtWidgets
+
 import sys
 import inv_interfaces
 from datetime import datetime
+from openpyxl import load_workbook
+from PyQt5 import QtWidgets
 
 inv = load_workbook('../base_file/main.xlsx')
 
@@ -23,14 +24,20 @@ class ExampleApp(QtWidgets.QMainWindow, inv_interfaces.Ui_MainWindow):
         super().__init__()
         self.setupUi(self)  # Это нужно для инициализации дизайна
 
-
+    # Первый таб
         self.comboBox_unit.setPlaceholderText('Выберите отделение')
         self.comboBox_unit.addItems(list(name_units.keys()))
         self.comboBox_unit.currentTextChanged.connect(self.unit_selected)
-
         self.pushButton_into_values.clicked.connect(self.into_value)
+    # Второй таб
+        self.comboBox_unit_view.setPlaceholderText('Выберите отделение')
+        self.comboBox_unit_view.addItems(list(name_units.keys()))
+        self.comboBox_unit_view.currentTextChanged.connect(self.unit_selected_for_sort)
+        self.pushButton_view_info.clicked.connect(self.output_sort_info)
 
 
+
+    # Ввод данных в exel
     def into_value(self):
         # Берем данные из необходимых полей
         unit = self.comboBox_unit.currentText()
@@ -45,30 +52,30 @@ class ExampleApp(QtWidgets.QMainWindow, inv_interfaces.Ui_MainWindow):
         # Ищем ячейку по значению и вычитаем из нее count_item
         for i in range(1, len(list(inv[unit].values))):
             if inv[unit][f'A{i}'].value == name_item:
-                if inv[unit][f'B{i}'].value >= int(count_item):
-                    try:
-                        inv[unit][f'B{i}'].value -= int(count_item)
-                        # Записываем данные на лист "Движение"
-                        moving_sheet.append(list_value)
+                try:
+                    if inv[unit][f'B{i}'].value >= int(count_item):
+                        try:
+                            inv[unit][f'B{i}'].value -= int(count_item)
+                            # Записываем данные на лист "Движение"
+                            moving_sheet.append(list_value)
 
-                        # Уменьшаем количество в общем плане
-                        if unit != 'Общий план':
-                            plans_sheet[f'B{i}'].value -= int(count_item)
-                        inv.save('../base_file/main.xlsx')
-                        self.label_info.setText('Job is done!!!')
+                            # Уменьшаем количество в общем плане
+                            if unit != 'Общий план':
+                                plans_sheet[f'B{i}'].value -= int(count_item)
+                            inv.save('../base_file/main.xlsx')
+                            self.label_info.setText('Job is done!!!')
 
-                        # очищаем поля, для дальнейшей работы
-                        self.lineEdit_count.clear()
-                        self.lineEdit_kab.clear()
+                            # очищаем поля, для дальнейшей работы
+                            self.lineEdit_count.clear()
+                            self.lineEdit_kab.clear()
 
-                    except:
-                        if not count_item.isdigit():
-                            self.label_info.setText('Количество может быть только целым числом')
-                else:
-                    self.label_info.setText(f"Вы можете выдать только: {inv[unit][f'B{i}'].value} шт.")
-
-
-
+                        except:
+                            if not count_item.isdigit():
+                                self.label_info.setText('Количество может быть только целым числом')
+                    else:
+                        self.label_info.setText(f"Вы можете выдать только: {inv[unit][f'B{i}'].value} шт.")
+                except:
+                    self.label_info.setText('Поле: "Количество" обязательно для заполнения')
 
 
     # Изменения данных комбобокса Отделений
@@ -81,6 +88,27 @@ class ExampleApp(QtWidgets.QMainWindow, inv_interfaces.Ui_MainWindow):
         self.comboBox_name.addItems(items_for_combo)
         self.comboBox_subuint.clear()
         self.comboBox_subuint.addItems(name_units[value])
+
+    # Изменения данных комбобокса Отделений(Сортировка)
+    def unit_selected_for_sort(self, value):
+        self.comboBox_sub_unit_view.clear()
+        self.comboBox_sub_unit_view.addItems(name_units[value])
+
+
+    # Вывод сортированных данных в TextEdit
+    def output_sort_info(self):
+        self.textEdit_view_info.clear()
+        # Получение данных для сортировки
+        before = self.dateEdit_before.date()
+        after = self.dateEdit_after.date()
+        unit_view = self.comboBox_unit_view.currentText()
+        sub_view = self.comboBox_sub_unit_view.currentText()
+        self.textEdit_view_info.append('Кабинет -- Количество -- Наименование')
+        for row in moving_sheet:
+            unit, sub, kab, name, count, date = row
+            if unit.value == unit_view:
+                if sub.value == sub_view:
+                    self.textEdit_view_info.append(f'{kab.value} -- {count.value} -- {name.value}')
 
 
 def main():
