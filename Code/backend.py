@@ -12,8 +12,7 @@ name_sheet = inv['Наименования']
 moving_sheet = inv['Движение']
 items_for_combo_name = []
 
-name_units = {'Выберите значение': ['Выберите значение'],
-              'Амбулатория': ['АО1', 'АО2', 'АО3', 'АО4', 'КДЛ', 'Платное отделение'],
+name_units = {'Амбулатория': ['АО1', 'АО2', 'АО3', 'АО4', 'КДЛ', 'Платное отделение'],
               'Стационар' : ['Стационар'],
               'Дневной Стационар': ['ДС1', 'ДС2', 'ДС3', 'ДС4'],
               'Вне плана': ['АО1', 'АО2', 'АО3', 'АО4', 'КДЛ',
@@ -22,10 +21,13 @@ name_units = {'Выберите значение': ['Выберите значе
 
 
 class ExampleApp(QtWidgets.QMainWindow, inv_interfaces.Ui_MainWindow):
+
     def __init__(self):
         super().__init__()
         self.setupUi(self)  # Это нужно для инициализации дизайна
 
+
+        self.comboBox_unit.setPlaceholderText('Выберите отделение')
         self.comboBox_unit.addItems(list(name_units.keys()))
         self.comboBox_unit.currentTextChanged.connect(self.unit_selected)
 
@@ -33,7 +35,7 @@ class ExampleApp(QtWidgets.QMainWindow, inv_interfaces.Ui_MainWindow):
 
 
     def into_value(self):
-
+        # Берем данные из необходимых полей
         unit = self.comboBox_unit.currentText()
         sub = self.comboBox_subuint.currentText()
         kab = self.lineEdit_kab.text()
@@ -41,17 +43,25 @@ class ExampleApp(QtWidgets.QMainWindow, inv_interfaces.Ui_MainWindow):
         count_item = self.lineEdit_count.text()
         list_value = [unit, sub, kab, name_item, count_item]
         list_value.append(datetime.today())
+
+        # Записываем данные на лист "Движение"
         moving_sheet.append(list_value)
+
+        # Ищем ячейку по значению и вычитаем из нее count_item
         for i in range(1, len(list(inv[unit].values))):
             if inv[unit][f'A{i}'].value == name_item:
-                #inv[unit][f'B{i}'].value -= count_item
-                print(inv[unit][f'B{i}'].value)
-
+                try:
+                #ind = 1
+                    inv[unit][f'B{i}'].value -= int(count_item)
+                except:
+                    print('Что то пошло не так')
         inv.save('../base_file/main.xlsx')
 
-
-
-
+        # очищаем поля, для дальнейшей работы
+        self.comboBox_name.clear()
+        self.comboBox_subuint.clear()
+        self.lineEdit_count.clear()
+        self.lineEdit_count.clear()
 
     # Изменения данных комбобокса Отделений
     def unit_selected(self, value):
@@ -59,10 +69,14 @@ class ExampleApp(QtWidgets.QMainWindow, inv_interfaces.Ui_MainWindow):
         for name, count in inv[value].values:
             if count != 0 and type(count) == int:
                 items_for_combo.append(name)
-        self.comboBox_subuint.clear()
+        self.comboBox_name.clear()
         self.comboBox_name.addItems(items_for_combo)
         self.comboBox_subuint.clear()
         self.comboBox_subuint.addItems(name_units[value])
+
+
+
+
 
 
 
