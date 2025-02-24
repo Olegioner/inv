@@ -1,21 +1,18 @@
 from openpyxl import load_workbook
 from PyQt5 import QtWidgets
-
 import sys
 import inv_interfaces
-from openpyxl import load_workbook
 from datetime import datetime
 
 inv = load_workbook('../base_file/main.xlsx')
 
-name_sheet = inv['Наименования']
 moving_sheet = inv['Движение']
-items_for_combo_name = []
+plans_sheet = inv['Общий план']
 
 name_units = {'Амбулатория': ['АО1', 'АО2', 'АО3', 'АО4', 'КДЛ', 'Платное отделение'],
               'Стационар' : ['Стационар'],
               'Дневной Стационар': ['ДС1', 'ДС2', 'ДС3', 'ДС4'],
-              'Вне плана': ['АО1', 'АО2', 'АО3', 'АО4', 'КДЛ',
+              'Общий план': ['АО1', 'АО2', 'АО3', 'АО4', 'КДЛ',
                             'Платное отделение','Стационар','ДС1', 'ДС2', 'ДС3', 'ДС4']}
 
 
@@ -44,24 +41,35 @@ class ExampleApp(QtWidgets.QMainWindow, inv_interfaces.Ui_MainWindow):
         list_value = [unit, sub, kab, name_item, count_item]
         list_value.append(datetime.today())
 
-        # Записываем данные на лист "Движение"
-        moving_sheet.append(list_value)
 
         # Ищем ячейку по значению и вычитаем из нее count_item
         for i in range(1, len(list(inv[unit].values))):
             if inv[unit][f'A{i}'].value == name_item:
-                try:
-                #ind = 1
-                    inv[unit][f'B{i}'].value -= int(count_item)
-                except:
-                    print('Что то пошло не так')
-        inv.save('../base_file/main.xlsx')
+                if inv[unit][f'B{i}'].value >= int(count_item):
+                    try:
+                        inv[unit][f'B{i}'].value -= int(count_item)
+                        # Записываем данные на лист "Движение"
+                        moving_sheet.append(list_value)
 
-        # очищаем поля, для дальнейшей работы
-        self.comboBox_name.clear()
-        self.comboBox_subuint.clear()
-        self.lineEdit_count.clear()
-        self.lineEdit_count.clear()
+                        # Уменьшаем количество в общем плане
+                        if unit != 'Общий план':
+                            plans_sheet[f'B{i}'].value -= int(count_item)
+                        inv.save('../base_file/main.xlsx')
+                        self.label_info.setText('Job is done!!!')
+
+                        # очищаем поля, для дальнейшей работы
+                        self.lineEdit_count.clear()
+                        self.lineEdit_kab.clear()
+
+                    except:
+                        if not count_item.isdigit():
+                            self.label_info.setText('Количество может быть только целым числом')
+                else:
+                    self.label_info.setText(f"Вы можете выдать только: {inv[unit][f'B{i}'].value} шт.")
+
+
+
+
 
     # Изменения данных комбобокса Отделений
     def unit_selected(self, value):
@@ -73,12 +81,6 @@ class ExampleApp(QtWidgets.QMainWindow, inv_interfaces.Ui_MainWindow):
         self.comboBox_name.addItems(items_for_combo)
         self.comboBox_subuint.clear()
         self.comboBox_subuint.addItems(name_units[value])
-
-
-
-
-
-
 
 
 def main():
