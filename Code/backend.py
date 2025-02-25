@@ -1,9 +1,9 @@
-
 import sys
 import inv_interfaces
-from datetime import datetime
+from datetime import datetime, timedelta
 from openpyxl import load_workbook
 from PyQt5 import QtWidgets
+from collections import Counter
 
 inv = load_workbook('../base_file/main.xlsx')
 
@@ -30,9 +30,14 @@ class ExampleApp(QtWidgets.QMainWindow, inv_interfaces.Ui_MainWindow):
         self.comboBox_unit.currentTextChanged.connect(self.unit_selected)
         self.pushButton_into_values.clicked.connect(self.into_value)
     # Второй таб
-        self.comboBox_unit_view.setPlaceholderText('Выберите отделение')
+        #Первичное заполнение combobox
         self.comboBox_unit_view.addItems(list(name_units.keys()))
+        self.comboBox_sub_unit_view.addItems(name_units[self.comboBox_unit_view.currentText()])
         self.comboBox_unit_view.currentTextChanged.connect(self.unit_selected_for_sort)
+
+        self.dateEdit_before.setDate(datetime.today() - timedelta(days=30))
+        self.dateEdit_after.setDate(datetime.today())
+
         self.pushButton_view_info.clicked.connect(self.output_sort_info)
 
 
@@ -97,18 +102,24 @@ class ExampleApp(QtWidgets.QMainWindow, inv_interfaces.Ui_MainWindow):
 
     # Вывод сортированных данных в TextEdit
     def output_sort_info(self):
+        sorted_dict = Counter()
         self.textEdit_view_info.clear()
         # Получение данных для сортировки
         before = self.dateEdit_before.date()
         after = self.dateEdit_after.date()
         unit_view = self.comboBox_unit_view.currentText()
         sub_view = self.comboBox_sub_unit_view.currentText()
-        self.textEdit_view_info.append('Кабинет -- Количество -- Наименование')
         for row in moving_sheet:
             unit, sub, kab, name, count, date = row
             if unit.value == unit_view:
                 if sub.value == sub_view:
-                    self.textEdit_view_info.append(f'{kab.value} -- {count.value} -- {name.value}')
+                    if date.value >= before and date.value < after:
+                        sorted_dict[name.value] += int(count.value)
+        if len(sorted_dict) == 0:
+            self.textEdit_view_info.append('За указанный период данные не найдены')
+        else:
+            for key in sorted_dict.keys():
+                self.textEdit_view_info.append(f'{sorted_dict[key]} -> {key}')
 
 
 def main():
