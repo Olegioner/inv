@@ -4,8 +4,10 @@ from datetime import datetime, timedelta
 from openpyxl import load_workbook
 from PyQt5 import QtWidgets
 from collections import Counter
+import secret
+from Code.secret import file_way
 
-inv = load_workbook('../base_file/main.xlsx')
+inv = load_workbook(secret.file_way)
 
 moving_sheet = inv['Движение']
 plans_sheet = inv['Общий план']
@@ -54,7 +56,7 @@ class ExampleApp(QtWidgets.QMainWindow, inv_interfaces.Ui_MainWindow):
         list_value.append(datetime.today())
 
 
-        # Ищем ячейку по значению и вычитаем из нее count_item
+        #Ищем ячейку по значению и вычитаем из нее count_item
         for i in range(1, len(list(inv[unit].values))):
             if inv[unit][f'A{i}'].value == name_item:
                 try:
@@ -66,8 +68,10 @@ class ExampleApp(QtWidgets.QMainWindow, inv_interfaces.Ui_MainWindow):
 
                             # Уменьшаем количество в общем плане
                             if unit != 'Общий план':
-                                plans_sheet[f'B{i}'].value -= int(count_item)
-                            inv.save('../base_file/main.xlsx')
+                                 for j in range(1, len(list(plans_sheet.values))):
+                                    if plans_sheet[f'A{j}'].value == name_item:
+                                        plans_sheet[f'B{j}'].value -= int(count_item)
+                            inv.save(secret.file_way)
                             self.label_info.setText('Job is done!!!')
 
                             # очищаем поля, для дальнейшей работы
