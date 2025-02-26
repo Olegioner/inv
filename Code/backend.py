@@ -5,7 +5,6 @@ from openpyxl import load_workbook
 from PyQt5 import QtWidgets
 from collections import Counter
 import secret
-from Code.secret import file_way
 
 inv = load_workbook(secret.file_way)
 
@@ -38,7 +37,7 @@ class ExampleApp(QtWidgets.QMainWindow, inv_interfaces.Ui_MainWindow):
         self.comboBox_unit_view.currentTextChanged.connect(self.unit_selected_for_sort)
 
         self.dateEdit_before.setDate(datetime.today() - timedelta(days=30))
-        self.dateEdit_after.setDate(datetime.today())
+        self.dateEdit_after.setDate(datetime.today() + timedelta(days=1))
 
         self.pushButton_view_info.clicked.connect(self.output_sort_info)
 
@@ -58,33 +57,35 @@ class ExampleApp(QtWidgets.QMainWindow, inv_interfaces.Ui_MainWindow):
 
         #Ищем ячейку по значению и вычитаем из нее count_item
         for i in range(1, len(list(inv[unit].values))):
-            if inv[unit][f'A{i}'].value == name_item:
-                try:
-                    if inv[unit][f'B{i}'].value >= int(count_item):
-                        try:
-                            inv[unit][f'B{i}'].value -= int(count_item)
-                            # Записываем данные на лист "Движение"
-                            moving_sheet.append(list_value)
+            cell_name = inv[unit][f'A{i}'].value
+            cell_count = inv[unit][f'B{i}'].value
+            if cell_name == name_item:
+                if not count_item.isdigit():
+                    self.label_info.setText('Количество может быть только целым числом')
 
-                            # Уменьшаем количество в общем плане
-                            if unit != 'Общий план':
-                                 for j in range(1, len(list(plans_sheet.values))):
-                                    if plans_sheet[f'A{j}'].value == name_item:
-                                        plans_sheet[f'B{j}'].value -= int(count_item)
-                            inv.save(secret.file_way)
-                            self.label_info.setText('Job is done!!!')
+                elif cell_count < int(count_item):
+                    self.label_info.setText(f"Вы можете выдать только: {cell_count} шт.")
 
-                            # очищаем поля, для дальнейшей работы
-                            self.lineEdit_count.clear()
-                            self.lineEdit_kab.clear()
+                else:
+                    cell_count -= int(count_item)
+                    inv[unit][f'B{i}'].value = cell_count
 
-                        except:
-                            if not count_item.isdigit():
-                                self.label_info.setText('Количество может быть только целым числом')
-                    else:
-                        self.label_info.setText(f"Вы можете выдать только: {inv[unit][f'B{i}'].value} шт.")
-                except:
-                    self.label_info.setText('Поле: "Количество" обязательно для заполнения')
+                    # Записываем данные на лист "Движение"
+                    moving_sheet.append(list_value)
+
+                    # Уменьшаем количество в общем плане
+                    if unit != 'Общий план':
+                        for j in range(1, len(list(plans_sheet.values))):
+                            if plans_sheet[f'A{j}'].value == cell_name:
+                                plans_sheet[f'B{j}'].value -= int(count_item)
+
+                    # Сохраняем и выводим статус
+                    inv.save(secret.file_way)
+                    self.label_info.setText('Job is done!!!')
+
+                    # Очищаем поля для дальнейшей работы
+                    self.lineEdit_count.clear()
+                    self.lineEdit_kab.clear()
 
 
     # Изменения данных комбобокса Отделений
@@ -97,6 +98,7 @@ class ExampleApp(QtWidgets.QMainWindow, inv_interfaces.Ui_MainWindow):
         self.comboBox_name.addItems(items_for_combo)
         self.comboBox_subuint.clear()
         self.comboBox_subuint.addItems(name_units[value])
+
 
     # Изменения данных комбобокса Отделений(Сортировка)
     def unit_selected_for_sort(self, value):
